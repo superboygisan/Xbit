@@ -32,12 +32,12 @@
         "value": "",
         "required": true
       },
-      "YTPROXY_URL": {
+      "SHRUTI_API_URL": {
         "description": "YT Proxy Server Endpoint",
         "value": "https://tgapi.xbitcode.com",
         "required": true
       },
-        "YT_API_KEY": {
+        "SHRUTI_API_KEY": {
         "description": "YT Proxy API KEY",
         "value": "",
         "required": true
