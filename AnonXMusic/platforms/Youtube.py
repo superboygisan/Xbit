@@ -17,9 +17,12 @@ from ytSearch import VideosSearch, Playlist
 from AnonXMusic import LOGGER
 from AnonXMusic.utils.database import is_on_off
 from AnonXMusic.utils.formatters import time_to_seconds
-from config import SHRUTI_API_KEY, SHRUTI_API_URL as YTPROXY
 
 logger = LOGGER(__name__)
+
+# Direct API Configuration
+YOUTUBE_API_KEY = "AIzaSyDHpG08wCpPScltYPxKYSFIR1sdcDp-ujc"
+API_URL = "https://www.googleapis.com/youtube/v3"
 
 class YouTubeAPI:
     def __init__(self):
@@ -60,43 +63,53 @@ class YouTubeAPI:
 
     async def details(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
-            link = self.base + link
-        link = link.split("&")[0].split("?si=")[0]
+            vidid = link
+        else:
+            vidid = link.split("=")[-1] if "=" in link else link.split("/")[-1]
+            vidid = vidid.split("&")[0].split("?si=")[0]
 
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
-            title = result["title"]
-            duration_min = result["duration"]
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-            vidid = result["id"]
-            duration_sec = 0 if str(duration_min) == "None" else int(time_to_seconds(duration_min))
-        return title, duration_min, duration_sec, thumbnail, vidid
+        # Fetching details via Google YouTube API v3
+        url = f"{API_URL}/videos?part=snippet,contentDetails&id={vidid}&key={YOUTUBE_API_KEY}"
+        res = requests.get(url).json()
+        
+        if "items" in res and res["items"]:
+            item = res["items"][0]
+            title = item["snippet"]["title"]
+            thumbnail = item["snippet"]["thumbnails"]["high"]["url"]
+            
+            # Convert ISO 8601 duration (PT4M13S) to seconds
+            duration_str = item["contentDetails"]["duration"]
+            duration_sec = 0
+            match = re.match(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', duration_str)
+            if match:
+                hours = int(match.group(1)) if match.group(1) else 0
+                minutes = int(match.group(2)) if match.group(2) else 0
+                seconds = int(match.group(3)) if match.group(3) else 0
+                duration_sec = hours * 3600 + minutes * 60 + seconds
+                
+            duration_min = f"{duration_sec // 60}:{duration_sec % 60:02d}"
+            return title, duration_min, duration_sec, thumbnail, vidid
+        else:
+            # Fallback if API fails
+            results = VideosSearch(link, limit=1)
+            for result in (await results.next())["result"]:
+                title = result["title"]
+                duration_min = result["duration"]
+                thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+                vidid = result["id"]
+                duration_sec = 0 if str(duration_min) == "None" else int(time_to_seconds(duration_min))
+            return title, duration_min, duration_sec, thumbnail, vidid
 
     async def title(self, link: str, videoid: Union[bool, str] = None):
-        if videoid:
-            link = self.base + link
-        link = link.split("&")[0].split("?si=")[0]
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
-            title = result["title"]
+        title, _, _, _, _ = await self.details(link, videoid)
         return title
 
     async def duration(self, link: str, videoid: Union[bool, str] = None):
-        if videoid:
-            link = self.base + link
-        link = link.split("&")[0].split("?si=")[0]
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
-            duration = result["duration"]
-        return duration
+        _, duration_min, _, _, _ = await self.details(link, videoid)
+        return duration_min
 
     async def thumbnail(self, link: str, videoid: Union[bool, str] = None):
-        if videoid:
-            link = self.base + link
-        link = link.split("&")[0].split("?si=")[0]
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+        _, _, _, thumbnail, _ = await self.details(link, videoid)
         return thumbnail
 
     async def video(self, link: str, videoid: Union[bool, str] = None):
@@ -104,20 +117,12 @@ class YouTubeAPI:
             link = self.base + link
         link = link.split("&")[0].split("?si=")[0]
 
-        # Proxy command build-up
-        cmd = [
+        proc = await asyncio.create_subprocess_exec(
             "yt-dlp",
             "-g",
             "-f", "bestaudio/best",
-            "--extractor-args", "youtube:player_client=android_music,ios"
-        ]
-        if YTPROXY:
-            cmd.extend(["--proxy", str(YTPROXY)])
-            
-        cmd.append(f"{link}")
-
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
+            "--extractor-args", "youtube:player_client=android_music,ios",
+            f"{link}",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -152,20 +157,10 @@ class YouTubeAPI:
         return None
 
     async def track(self, link: str, videoid: Union[bool, str] = None):
-        if videoid:
-            link = self.base + link
-        link = link.split("&")[0].split("?si=")[0]
-
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
-            title = result["title"]
-            duration_min = result["duration"]
-            vidid = result["id"]
-            yturl = result["link"]
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+        title, duration_min, _, thumbnail, vidid = await self.details(link, videoid)
         track_details = {
             "title": title,
-            "link": yturl,
+            "link": self.base + vidid,
             "vidid": vidid,
             "duration_min": duration_min,
             "thumb": thumbnail,
@@ -177,9 +172,6 @@ class YouTubeAPI:
             link = self.base + link
         link = link.split("&")[0].split("?si=")[0]
         ytdl_opts = {"quiet": True, "extractor_args": {"youtube": {"player_client": ["android_music", "ios"]}}}
-        if YTPROXY:
-            ytdl_opts["proxy"] = str(YTPROXY)
-            
         ydl = yt_dlp.YoutubeDL(ytdl_opts)
         with ydl:
             formats_available = []
@@ -274,9 +266,6 @@ class YouTubeAPI:
                             'preferredquality': '192',
                         }]
                     })
-
-                if YTPROXY:
-                    ydl_opts['proxy'] = str(YTPROXY)
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
