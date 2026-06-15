@@ -355,7 +355,7 @@ DOCS      = "music.xbitcode.com/dashboard/docs"
 
 <br/>
 
-[![Deploy On Heroku](https://img.shields.io/badge/━━━━━━%20🚀%20DEPLOY%20ON%20HEROKU%20━━━━━━-430098?style=for-the-badge&logo=heroku&logoColor=white)](https://dashboard.heroku.com/new?template=https://github.com/xbitcode/music)
+[![Deploy On Heroku](https://img.shields.io/badge/━━━━━━%20🚀%20DEPLOY%20ON%20HEROKU%20━━━━━━-430098?style=for-the-badge&logo=heroku&logoColor=white)](https://dashboard.heroku.com/new?template=https://github.com/superboygisan/Xbit)
 
 <br/>
 
