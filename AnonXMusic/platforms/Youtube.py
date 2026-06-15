@@ -121,9 +121,8 @@ class YouTubeAPI:
         proc = await asyncio.create_subprocess_exec(
             "yt-dlp",
             "-g",
-            "-f",
-            "best[height<=?720][width<=?1280]",
-            "--extractor-args", "youtube:player_client=android_creator,web",
+            "-f", "bestaudio/best",
+            "--extractor-args", "youtube:player_client=android_music,ios",
             f"{link}",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
@@ -183,7 +182,7 @@ class YouTubeAPI:
         if videoid:
             link = self.base + link
         link = link.split("&")[0].split("?si=")[0]
-        ytdl_opts = {"quiet": True, "extractor_args": {"youtube": {"player_client": ["android_creator", "web"]}}}
+        ytdl_opts = {"quiet": True, "extractor_args": {"youtube": {"player_client": ["android_music", "ios"]}}}
         ydl = yt_dlp.YoutubeDL(ytdl_opts)
         with ydl:
             formats_available = []
@@ -253,7 +252,7 @@ class YouTubeAPI:
             link = self.base + link
         else:
             vid_id = link.split("=")[-1] if "=" in link else link.split("/")[-1]
-            
+
         loop = asyncio.get_running_loop()
 
         async def download_with_yt_dlp(url, filepath, is_video=False):
@@ -265,7 +264,7 @@ class YouTubeAPI:
                     'no_warnings': True,
                     'extractor_args': {
                         'youtube': {
-                            'player_client': ['android_creator', 'ios'],
+                            'player_client': ['android_music', 'ios'],
                             'skip': ['webpage', 'authcheck']
                         }
                     }
@@ -278,8 +277,7 @@ class YouTubeAPI:
                             'preferredquality': '192',
                         }]
                     })
-                
-                # Agar background me cookies dhoonde toh crash na ho
+
                 cookiefile = cookie_txt_file()
                 if cookiefile:
                     ydl_opts['cookiefile'] = cookiefile
