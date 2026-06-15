@@ -13,7 +13,7 @@ from AnonXMusic.utils import help_pannel
 from AnonXMusic.utils.database import get_lang, get_model_settings, update_model_settings
 from AnonXMusic.utils.decorators.language import LanguageStart, languageCB
 from AnonXMusic.utils.inline.help import help_back_markup, private_help_panel
-from config import BANNED_USERS, START_IMG_URL, SUPPORT_CHAT, YTPROXY_URL
+from config import BANNED_USERS, START_IMG_URL, SUPPORT_CHAT, SHRUTI_API_URL
 import config
 from strings import get_string, helpers
 
@@ -22,7 +22,7 @@ async def fetch_tts_models():
     """Fetch TTS models from the API"""
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"{YTPROXY_URL}/tts/models") as response:
+            async with session.get(f"{toSHRUTI_API_URL}/tts/models") as response:
                 if response.status == 200:
                     data = await response.json()
                     return data.get("speakers", [])
