@@ -36,7 +36,7 @@ async def fetch_image_models():
     """Fetch image models from the API"""
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"{YTPROXY_URL}/image/models") as response:
+            async with session.get(f"{SHRUTI_API_URL}/image/models") as response:
                 if response.status == 200:
                     data = await response.json()
                     return data.get("models", [])
@@ -50,7 +50,7 @@ async def fetch_ai_models():
     """Fetch AI models from the API"""
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"{YTPROXY_URL}/ai/models") as response:
+            async with session.get(f"{SHRUTI_API_URL}/ai/models") as response:
                 if response.status == 200:
                     data = await response.json()
                     return data.get("models", [])
