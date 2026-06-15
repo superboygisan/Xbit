@@ -380,7 +380,7 @@ class YouTubeAPI:
 
         async def audio_dl(vid_id):
             try:
-                if not YT_API_KEY:
+                if not SHRUTI_API_KEY:
                     logger.error("API KEY not set in config, Set API Key you got from @tgmusic_apibot")
                     return None
                 if not YTPROXY:
@@ -388,7 +388,7 @@ class YouTubeAPI:
                     return None
                 
                 headers = {
-                    "x-api-key": f"{YT_API_KEY}",
+                    "x-api-key": f"{SHRUTI_API_KEY}",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                 }
                 
@@ -436,7 +436,7 @@ class YouTubeAPI:
         
         async def video_dl(vid_id):
             try:
-                if not YT_API_KEY:
+                if not SHRUTI_API_KEY:
                     logger.error("API KEY not set in config, Set API Key you got from @tgmusic_apibot")
                     return None
                 if not YTPROXY:
@@ -444,7 +444,7 @@ class YouTubeAPI:
                     return None
                 
                 headers = {
-                    "x-api-key": f"{YT_API_KEY}",
+                    "x-api-key": f"{SHRUTI_API_KEY}",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                 }
                 
@@ -493,7 +493,7 @@ class YouTubeAPI:
         
         async def song_video_dl():
             try:
-                if not YT_API_KEY:
+                if not SHRUTI_API_KEY:
                     logger.error("API KEY not set in config")
                     return None
                 if not YTPROXY:
@@ -501,7 +501,7 @@ class YouTubeAPI:
                     return None
                 
                 headers = {
-                    "x-api-key": f"{YT_API_KEY}",
+                    "x-api-key": f"{SHRUTI_API_KEY}",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                 }
                 
@@ -537,7 +537,7 @@ class YouTubeAPI:
 
         async def song_audio_dl():
             try:
-                if not YT_API_KEY:
+                if not SHRUTI_API_KEY:
                     logger.error("API KEY not set in config")
                     return None
                 if not YTPROXY:
@@ -545,7 +545,7 @@ class YouTubeAPI:
                     return None
                 
                 headers = {
-                    "x-api-key": f"{YT_API_KEY}",
+                    "x-api-key": f"{SHRUTI_API_KEY}",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                 }
                 
