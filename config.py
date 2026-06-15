@@ -17,7 +17,7 @@ BOT_TOKEN = getenv("BOT_TOKEN")
 MONGO_DB_URI = getenv("MONGO_DB_URI", None)
 
 # Vars For API End Pont.
-SHRUTI_API_URL = getenv("SHRUTI_API_URL", 'https://api.shrutibots.in') ## xBit Music Endpoint.
+SHRUTI_API_URL = getenv("SHRUTI_API_URL", 'https://api.shrutibots.site') ## xBit Music Endpoint.
 SHRUTI_API_KEY = getenv("SHRUTI_API_KEY" , None ) ## Your API key like: xbit_10000000xx0233 Get from  https://t.me/tgmusic_apibot
 
 ## Other vaes
