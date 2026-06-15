@@ -14,7 +14,7 @@ dependencies = [
     "hachoir>=3.2.0",
     "heroku3>=5.2.0",
     "httpx==0.28.1",
-    "kurigram>=2.2.25",
+    "kurigram==2.2.23",
     "motor==3.7.1",
     "numpy==2.4.4",
     "opencv-python==4.13.0.92",
