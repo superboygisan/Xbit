@@ -21,20 +21,6 @@ from config import SHRUTI_API_KEY, SHRUTI_API_URL as YTPROXY
 
 logger = LOGGER(__name__)
 
-# Yeh function wapas jod diya taaki ImportError na aaye
-def cookie_txt_file():
-    try:
-        folder_path = f"{os.getcwd()}/cookies"
-        filename = f"{os.getcwd()}/cookies/logs.csv"
-        txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
-        if not txt_files:
-            return None
-        cookie_txt_file = random.choice(txt_files)
-        return f"""cookies/{str(cookie_txt_file).split("/")[-1]}"""
-    except:
-        return None
-
-
 class YouTubeAPI:
     def __init__(self):
         self.base = "https://www.youtube.com/watch?v="
@@ -118,12 +104,20 @@ class YouTubeAPI:
             link = self.base + link
         link = link.split("&")[0].split("?si=")[0]
 
-        proc = await asyncio.create_subprocess_exec(
+        # Proxy command build-up
+        cmd = [
             "yt-dlp",
             "-g",
             "-f", "bestaudio/best",
-            "--extractor-args", "youtube:player_client=android_music,ios",
-            f"{link}",
+            "--extractor-args", "youtube:player_client=android_music,ios"
+        ]
+        if YTPROXY:
+            cmd.extend(["--proxy", str(YTPROXY)])
+            
+        cmd.append(f"{link}")
+
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -183,6 +177,9 @@ class YouTubeAPI:
             link = self.base + link
         link = link.split("&")[0].split("?si=")[0]
         ytdl_opts = {"quiet": True, "extractor_args": {"youtube": {"player_client": ["android_music", "ios"]}}}
+        if YTPROXY:
+            ytdl_opts["proxy"] = str(YTPROXY)
+            
         ydl = yt_dlp.YoutubeDL(ytdl_opts)
         with ydl:
             formats_available = []
@@ -278,9 +275,8 @@ class YouTubeAPI:
                         }]
                     })
 
-                cookiefile = cookie_txt_file()
-                if cookiefile:
-                    ydl_opts['cookiefile'] = cookiefile
+                if YTPROXY:
+                    ydl_opts['proxy'] = str(YTPROXY)
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
