@@ -21,6 +21,20 @@ from config import SHRUTI_API_KEY, SHRUTI_API_URL as YTPROXY
 
 logger = LOGGER(__name__)
 
+# Yeh function wapas jod diya taaki ImportError na aaye
+def cookie_txt_file():
+    try:
+        folder_path = f"{os.getcwd()}/cookies"
+        filename = f"{os.getcwd()}/cookies/logs.csv"
+        txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+        if not txt_files:
+            return None
+        cookie_txt_file = random.choice(txt_files)
+        return f"""cookies/{str(cookie_txt_file).split("/")[-1]}"""
+    except:
+        return None
+
+
 class YouTubeAPI:
     def __init__(self):
         self.base = "https://www.youtube.com/watch?v="
@@ -249,7 +263,6 @@ class YouTubeAPI:
                     'outtmpl': filepath.replace('.mp3', '') if not is_video else filepath.replace('.mp4', ''),
                     'quiet': True,
                     'no_warnings': True,
-                    # Yeh client args bypass karte hain "Sign in to confirm" error ko bina cookies ke
                     'extractor_args': {
                         'youtube': {
                             'player_client': ['android_creator', 'ios'],
@@ -265,6 +278,11 @@ class YouTubeAPI:
                             'preferredquality': '192',
                         }]
                     })
+                
+                # Agar background me cookies dhoonde toh crash na ho
+                cookiefile = cookie_txt_file()
+                if cookiefile:
+                    ydl_opts['cookiefile'] = cookiefile
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([url])
